@@ -63,14 +63,8 @@ merge xs = merged ++ padding
     combine x        = x
 
 transpose :: Grid -> Grid
-transpose [[aa, ab, ac, ad],
-           [ba, bb, bc, bd],
-           [ca, cb, cc, cd],
-           [da, db, dc, dd]] =
-  [[aa, ba, ca, da],
-   [ab, bb, cb, db],
-   [ac, bc, cc, dc],
-   [ad, bd, cd, dd]]
+transpose ([]:_) = []
+transpose g = (map head g) : transpose (map tail g)
 
 colReverse :: Grid -> Grid
 colReverse = map reverse
