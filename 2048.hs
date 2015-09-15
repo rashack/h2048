@@ -1,3 +1,5 @@
+module Main where
+
 import System.IO
 
 data Direction = East | North | West | South
@@ -47,8 +49,8 @@ charToDirection ch =
 move :: Grid -> Maybe Direction -> Grid
 move g Nothing = g
 move g (Just North) = transpose $ map merge (transpose g)
-move g (Just East)  = colRev $ map merge (colRev g)
-move g (Just South) = transpose $ rowRev $ map merge (rowRev $ transpose g)
+move g (Just East)  = colReverse $ map merge (colReverse g)
+move g (Just South) = rowReverse $ transpose $ map merge (transpose $ rowReverse g)
 move g (Just West)  = map merge g
 
 merge :: [Int] -> [Int]
@@ -70,11 +72,11 @@ transpose [[aa, ab, ac, ad],
    [ac, bc, cc, dc],
    [ad, bd, cd, dd]]
 
-colRev :: Grid -> Grid
-colRev = map reverse
+colReverse :: Grid -> Grid
+colReverse = map reverse
 
-rowRev :: Grid -> Grid
-rowRev = reverse
+rowReverse :: Grid -> Grid
+rowReverse = reverse
 
 pGrid (r:[]) = print r
 pGrid (r:rs) = do
