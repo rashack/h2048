@@ -14,13 +14,6 @@ start = [[0, 0, 0, 0],
 
 main :: IO ()
 main = do
-  -- pGrid start
-  -- putStrLn ""
-  -- pGrid $ move start West
-  -- putStrLn ""
-  -- pGrid $ transpose start
-  -- putStrLn ""
-  -- pGrid $ move (transpose start) West
   game start
 
 game grid = do
