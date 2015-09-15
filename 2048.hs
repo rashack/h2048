@@ -20,9 +20,9 @@ game grid = do
   putStrLn ""
   pGrid grid
   ch <- getCh
---  direction <- charToDirection ch
---  game $ move grid direction
-  game $ move grid (charToDirection ch) -- direction
+  case charToDirection ch of
+    Just char -> game $ move grid char
+    Nothing   -> game grid
 
 getCh :: IO Char
 getCh = do hSetEcho stdin False
@@ -39,12 +39,11 @@ charToDirection ch =
     'w' -> Just North
     _   -> Nothing
 
-move :: Grid -> Maybe Direction -> Grid
-move g Nothing = g
-move g (Just North) = transpose $ map merge (transpose g)
-move g (Just East)  = colReverse $ map merge (colReverse g)
-move g (Just South) = rowReverse $ transpose $ map merge (transpose $ rowReverse g)
-move g (Just West)  = map merge g
+move :: Grid -> Direction -> Grid
+move g North = transpose $ map merge (transpose g)
+move g East  = colReverse $ map merge (colReverse g)
+move g South = rowReverse $ transpose $ map merge (transpose $ rowReverse g)
+move g West  = map merge g
 
 merge :: [Int] -> [Int]
 merge xs = merged ++ padding
