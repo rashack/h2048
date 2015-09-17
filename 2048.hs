@@ -1,21 +1,56 @@
 module Main where
 
+import Control.Monad.State
 import System.IO
+import System.Random as Rnd
+import Debug.Trace
 
 data Direction = East | North | West | South
 
 type Grid = [[Int]]
 
-start :: Grid
-start = [[0, 0, 0, 0],
-         [0, 0, 0, 0],
-         [0, 0, 0, 2],
-         [0, 0, 0, 2]]
+cleanGrid :: Grid
+cleanGrid = replicate 4 $ replicate 4 0
+
+start :: StdGen -> Grid
+start r = do
+  trace ("foo " ++ show x) (set 2 (x, y) $ set 2 (y, x) cleanGrid)
+  -- set (x, y) cleanGrid
+  --   where rnd = Rnd.getStdGen
+    where (x', r') = next r
+          (y', _)  = next r'
+          x = x' `mod` 4
+          y = y' `mod` 4
+
+set :: Int -> (Int, Int) -> Grid -> Grid
+set e (x, y) g =
+  setl row' y g
+  where row  = g !! y
+        row' = (setl e x row)
+
+setl :: a -> Int -> [a] -> [a]
+setl _ _ []    = []
+setl e 0 (_:t) = e:t
+setl e n (h:t) = h : setl e (n-1) t
+
+rand :: StdGen -> Int -> (Int, StdGen)
+rand r m = (n `mod` m, r')
+  where (n, r') = next r
+
+-- spawn :: StdGen -> Grid -> Grid
+-- spawn r g = ...
+--     where (x', r') = next r
+--           (y', _)  = next r'
+--           x = x' `mod` 4
+--           y = y' `mod` 4
 
 main :: IO ()
 main = do
-  game start
+  r <- Rnd.getStdGen
+  game $ start r
+  return ()
 
+game :: Grid -> IO Grid
 game grid = do
   putStrLn ""
   pGrid grid
