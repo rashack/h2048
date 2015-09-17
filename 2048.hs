@@ -9,21 +9,26 @@ data Direction = East | North | West | South
 
 type Grid = [[Int]]
 
+size = 4
+
+-- This might be 2 or 4 in the future.
+spawnInt = 2
+
 cleanGrid :: Grid
-cleanGrid = replicate 4 $ replicate 4 0
+cleanGrid = replicate size $ replicate size 0
 
 start :: StdGen -> Grid
-start r = do
-  trace ("foo " ++ show x) (set 2 (x, y) $ set 2 (y, x) cleanGrid)
-  -- set (x, y) cleanGrid
-  --   where rnd = Rnd.getStdGen
-    where (x', r') = next r
-          (y', _)  = next r'
-          x = x' `mod` 4
-          y = y' `mod` 4
+start r = g''
+  --trace ("foo " ++ show x) (setg spawnInt (x, y) $ setg spawnInt (y, x) cleanGrid)
+  where
+    (g', r')   = spawn r cleanGrid
+    (g'', r'') = spawn r' g'
 
-set :: Int -> (Int, Int) -> Grid -> Grid
-set e (x, y) g =
+getg :: (Int, Int) -> Grid -> Int
+getg (x, y) g = (g !! y) !! x
+
+setg :: Int -> (Int, Int) -> Grid -> Grid
+setg e (x, y) g =
   setl row' y g
   where row  = g !! y
         row' = (setl e x row)
@@ -37,12 +42,20 @@ rand :: StdGen -> Int -> (Int, StdGen)
 rand r m = (n `mod` m, r')
   where (n, r') = next r
 
--- spawn :: StdGen -> Grid -> Grid
--- spawn r g = ...
---     where (x', r') = next r
---           (y', _)  = next r'
---           x = x' `mod` 4
---           y = y' `mod` 4
+randPos :: StdGen -> ((Int, Int), StdGen)
+randPos r = ((x, y), r'')
+  where (x, r')  = rand r  size
+        (y, r'') = rand r' size
+
+-- spawn a new number at an "open" position
+spawn :: StdGen -> Grid -> (Grid, StdGen)
+spawn r g = case spawnable pos g of
+  True  -> (setg spawnInt pos g, r')
+  False -> spawn r' g
+  where (pos, r') = randPos r
+
+spawnable :: (Int, Int) -> Grid -> Bool
+spawnable pos g = getg pos g == 0
 
 main :: IO ()
 main = do
