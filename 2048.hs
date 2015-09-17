@@ -17,8 +17,8 @@ spawnInt = 2
 cleanGrid :: Grid
 cleanGrid = replicate size $ replicate size 0
 
-start :: StdGen -> Grid
-start r = g''
+start :: StdGen -> (Grid, StdGen)
+start r = (g'', r'')
   --trace ("foo " ++ show x) (setg spawnInt (x, y) $ setg spawnInt (y, x) cleanGrid)
   where
     (g', r')   = spawn r cleanGrid
@@ -60,17 +60,19 @@ spawnable pos g = getg pos g == 0
 main :: IO ()
 main = do
   r <- Rnd.getStdGen
-  game $ start r
+  let (g, r') = start r
+  game g r'
   return ()
 
-game :: Grid -> IO Grid
-game grid = do
+game :: Grid -> StdGen -> IO Grid
+game grid rnd = do
   putStrLn ""
   pGrid grid
   ch <- getCh
   case charToDirection ch of
-    Just char -> game $ move grid char
-    Nothing   -> game grid
+    Just char -> do let (g', rnd') = spawn rnd $ move grid char
+                    game g' rnd'
+    Nothing   -> game grid rnd
 
 getCh :: IO Char
 getCh = do hSetEcho stdin False
