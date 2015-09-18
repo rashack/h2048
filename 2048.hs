@@ -49,9 +49,9 @@ randPos r = ((x, y), r'')
 
 -- spawn a new number at an "open" position
 spawn :: StdGen -> Grid -> (Grid, StdGen)
-spawn r g = case spawnable pos g of
-  True  -> (setg spawnInt pos g, r')
-  False -> spawn r' g
+spawn r g = if spawnable pos g
+            then (setg spawnInt pos g, r')
+            else spawn r' g
   where (pos, r') = randPos r
 
 spawnable :: (Int, Int) -> Grid -> Bool
