@@ -76,8 +76,11 @@ game grid rnd = do
 
 getCh :: IO Char
 getCh = do hSetEcho stdin False
+           buffering <- hGetBuffering stdin
+           hSetBuffering stdin NoBuffering
            c <- getChar
            hSetEcho stdin True
+           hSetBuffering stdin buffering
            return c
 
 charToDirection :: Char -> Maybe Direction
