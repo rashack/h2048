@@ -1,7 +1,7 @@
 module GridOps where
 
 import Grid
-import System.Random as Rnd
+import System.Random
 
 type Pos = (Int, Int)
 
