@@ -41,14 +41,11 @@ getCh = do hSetEcho stdin False
            hSetBuffering stdin buffering
            return c
 
+commands :: [(Char, Direction)]
+commands = [ ('a', West), ('s', South), ('d', East), ('w', North) ]
+
 charToDirection :: Char -> Maybe Direction
-charToDirection ch =
-  case ch of
-    'a' -> Just West
-    's' -> Just South
-    'd' -> Just East
-    'w' -> Just North
-    _   -> Nothing
+charToDirection ch = lookup ch commands
 
 pGrid :: Grid -> IO ()
 pGrid (r:[]) = print r
