@@ -9,20 +9,20 @@ data Direction = East | North | West | South
 
 type Grid = [[Int]]
 
+type Pos = (Int, Int)
+
+size :: Int
 size = 4
 
 -- This might be 2 or 4 in the future.
+spawnInt :: Int
 spawnInt = 2
 
 cleanGrid :: Grid
 cleanGrid = replicate size $ replicate size 0
 
-start :: StdGen -> (Grid, StdGen)
-start r = (g'', r'')
-  --trace ("foo " ++ show x) (setg spawnInt (x, y) $ setg spawnInt (y, x) cleanGrid)
-  where
-    (g', r')   = spawn r cleanGrid
-    (g'', r'') = spawn r' g'
+start :: StateT StdGen IO Grid
+start = spawn cleanGrid >>= spawn
 
 getg :: (Int, Int) -> Grid -> Int
 getg (x, y) g = (g !! y) !! x
@@ -31,7 +31,7 @@ setg :: Int -> (Int, Int) -> Grid -> Grid
 setg e (x, y) g =
   setl row' y g
   where row  = g !! y
-        row' = (setl e x row)
+        row' = setl e x row
 
 setl :: a -> Int -> [a] -> [a]
 setl _ _ []    = []
@@ -42,17 +42,24 @@ rand :: StdGen -> Int -> (Int, StdGen)
 rand r m = (n `mod` m, r')
   where (n, r') = next r
 
-randPos :: StdGen -> ((Int, Int), StdGen)
-randPos r = ((x, y), r'')
-  where (x, r')  = rand r  size
-        (y, r'') = rand r' size
+nextInt :: StateT StdGen IO Int
+nextInt = do
+  g <- get
+  let (n, g') = next g
+  put g'
+  return n
 
 -- spawn a new number at an "open" position
-spawn :: StdGen -> Grid -> (Grid, StdGen)
-spawn r g = if spawnable pos g
-            then (setg spawnInt pos g, r')
-            else spawn r' g
-  where (pos, r') = randPos r
+spawn   :: Grid -> StateT StdGen IO Grid
+spawn g = do
+  pos <- randPos1
+  if spawnable pos g
+    then return $ setg spawnInt pos g
+    else spawn g
+  where randPos1 = do
+          x <- nextInt
+          y <- nextInt
+          return (x `mod` size, y `mod` size)
 
 spawnable :: (Int, Int) -> Grid -> Bool
 spawnable pos g = getg pos g == 0
@@ -60,19 +67,18 @@ spawnable pos g = getg pos g == 0
 main :: IO ()
 main = do
   r <- Rnd.getStdGen
-  let (g, r') = start r
-  game g r'
-  return ()
+  (g, r') <- runStateT start r
+  forever $ evalStateT (game g) r'
 
-game :: Grid -> StdGen -> IO Grid
-game grid rnd = do
-  putStrLn ""
-  pGrid grid
-  ch <- getCh
+game :: Grid -> StateT StdGen IO Grid
+game grid = do
+  liftIO $ putStrLn ""
+  liftIO $ mapM_ print grid
+  ch <- liftIO getCh
   case charToDirection ch of
-    Just char -> do let (g', rnd') = spawn rnd $ move grid char
-                    game g' rnd'
-    Nothing   -> game grid rnd
+    Just char -> do g' <- spawn $ move grid char
+                    game g'
+    Nothing   -> game grid
 
 getCh :: IO Char
 getCh = do hSetEcho stdin False
@@ -109,15 +115,10 @@ merge xs = merged ++ padding
 
 transpose :: Grid -> Grid
 transpose ([]:_) = []
-transpose g = (map head g) : transpose (map tail g)
+transpose g = map head g : transpose (map tail g)
 
 colReverse :: Grid -> Grid
 colReverse = map reverse
 
 rowReverse :: Grid -> Grid
 rowReverse = reverse
-
-pGrid (r:[]) = print r
-pGrid (r:rs) = do
-  print r
-  pGrid rs
