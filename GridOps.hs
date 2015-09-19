@@ -74,8 +74,3 @@ colReverse = map reverse
 
 rowReverse :: Grid -> Grid
 rowReverse = reverse
-
-pGrid (r:[]) = print r
-pGrid (r:rs) = do
-  print r
-  pGrid rs

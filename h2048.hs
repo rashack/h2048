@@ -4,13 +4,14 @@ import Control.Monad.State
 import Grid
 import System.IO
 import System.Random as Rnd
+import Text.Printf
 import qualified GridOps
 
 main :: IO ()
 main = do
   r <- Rnd.getStdGen
   let (g, r') = GridOps.startGrid r
-  GridOps.pGrid g
+  ppGrid g
   game g r'
   return ()
 
@@ -26,7 +27,7 @@ maybeMove :: Grid -> Direction -> StdGen -> IO (Grid, StdGen)
 maybeMove g c rnd = if g == g'
                     then return (g, rnd)
                     else do putStrLn ""
-                            GridOps.pGrid g''
+                            ppGrid g''
                             return (g'', rnd')
   where g' = GridOps.move g c
         (g'', rnd') = GridOps.spawn rnd g'
@@ -49,3 +50,24 @@ charToDirection ch =
     'd' -> Just East
     'w' -> Just North
     _   -> Nothing
+
+pGrid :: Grid -> IO ()
+pGrid (r:[]) = print r
+pGrid (r:rs) = do
+  print r
+  pGrid rs
+
+ppGrid :: Grid -> IO ()
+ppGrid g = ppGrid2 g width
+  where width = 1 + (length $ show $ maximum $ map maximum g)
+
+ppGrid2 :: Grid -> Int -> IO ()
+ppGrid2 (r:[]) width = ppRow r width
+ppGrid2 (r:rs) width = do
+  ppRow r width
+  ppGrid2 rs width
+
+ppRow r w = do
+  mapM (Text.Printf.printf ("%" ++ show w ++ "d")) r
+  putStrLn ""
+  return ()
