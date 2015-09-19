@@ -38,10 +38,6 @@ setl _ _ []    = []
 setl e 0 (_:t) = e:t
 setl e n (h:t) = h : setl e (n-1) t
 
-rand :: StdGen -> Int -> (Int, StdGen)
-rand r m = (n `mod` m, r')
-  where (n, r') = next r
-
 nextInt :: State StdGen Int
 nextInt = do
   g <- get
