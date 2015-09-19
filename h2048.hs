@@ -2,7 +2,7 @@ module Main where
 
 import Control.Monad.State
 import System.IO
-import System.Random as Rnd
+import System.Random
 import Debug.Trace
 
 data Direction = East | North | West | South
@@ -24,10 +24,10 @@ cleanGrid = replicate size $ replicate size 0
 start :: State StdGen Grid
 start = spawn cleanGrid >>= spawn
 
-getg :: (Int, Int) -> Grid -> Int
+getg :: Pos -> Grid -> Int
 getg (x, y) g = (g !! y) !! x
 
-setg :: Int -> (Int, Int) -> Grid -> Grid
+setg :: Int -> Pos -> Grid -> Grid
 setg e (x, y) g =
   setl row' y g
   where row  = g !! y
@@ -62,7 +62,7 @@ spawnable pos g = getg pos g == 0
 
 main :: IO ()
 main = do
-  r <- Rnd.getStdGen
+  r <- getStdGen
   let (g, r') = runState start r
   forever $ game g r'
 
@@ -85,14 +85,11 @@ getCh = do hSetEcho stdin False
            hSetBuffering stdin buffering
            return c
 
+commands :: [(Char, Direction)]
+commands = [ ('a', West), ('s', South), ('d', East), ('w', North)]
+
 charToDirection :: Char -> Maybe Direction
-charToDirection ch =
-  case ch of
-    'a' -> Just West
-    's' -> Just South
-    'd' -> Just East
-    'w' -> Just North
-    _   -> Nothing
+charToDirection ch = lookup ch commands
 
 move :: Grid -> Direction -> Grid
 move g North = transpose $ map merge (transpose g)
