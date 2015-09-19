@@ -9,7 +9,7 @@ import qualified GridOps as GridOps
 
 main :: IO ()
 main = do
-  r <- Rnd.getStdGen
+  r <- getStdGen
   let (g, r') = runState GridOps.startGrid r
   ppGrid g
   game g r'
