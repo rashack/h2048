@@ -3,6 +3,8 @@ module GridOps where
 import Grid
 import System.Random as Rnd
 
+type Pos = (Int, Int)
+
 size = 4
 
 -- This might be 2 or 4 in the future.
@@ -17,10 +19,10 @@ startGrid r = (g'', r'')
     (g', r')   = spawn r cleanGrid
     (g'', r'') = spawn r' g'
 
-getg :: (Int, Int) -> Grid -> Int
+getg :: Pos -> Grid -> Int
 getg (x, y) g = (g !! y) !! x
 
-setg :: Int -> (Int, Int) -> Grid -> Grid
+setg :: Int -> Pos -> Grid -> Grid
 setg e (x, y) g =
   setl row' y g
   where row  = g !! y
@@ -35,7 +37,7 @@ rand :: StdGen -> Int -> (Int, StdGen)
 rand r m = (n `mod` m, r')
   where (n, r') = next r
 
-randPos :: StdGen -> ((Int, Int), StdGen)
+randPos :: StdGen -> (Pos, StdGen)
 randPos r = ((x, y), r'')
   where (x, r')  = rand r  size
         (y, r'') = rand r' size
@@ -47,7 +49,7 @@ spawn r g = if spawnable pos g
             else spawn r' g
   where (pos, r') = randPos r
 
-spawnable :: (Int, Int) -> Grid -> Bool
+spawnable :: Pos -> Grid -> Bool
 spawnable pos g = getg pos g == 0
 
 move :: Grid -> Direction -> Grid
