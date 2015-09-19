@@ -24,7 +24,7 @@ setg :: Int -> (Int, Int) -> Grid -> Grid
 setg e (x, y) g =
   setl row' y g
   where row  = g !! y
-        row' = (setl e x row)
+        row' = setl e x row
 
 setl :: a -> Int -> [a] -> [a]
 setl _ _ []    = []
@@ -67,7 +67,7 @@ merge xs = merged ++ padding
 
 transpose :: Grid -> Grid
 transpose ([]:_) = []
-transpose g = (map head g) : transpose (map tail g)
+transpose g = map head g : transpose (map tail g)
 
 colReverse :: Grid -> Grid
 colReverse = map reverse

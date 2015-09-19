@@ -32,7 +32,6 @@ maybeMove g c rnd = if g == g'
   where g' = GridOps.move g c
         (g'', rnd') = GridOps.spawn rnd g'
 
-
 getCh :: IO Char
 getCh = do hSetEcho stdin False
            buffering <- hGetBuffering stdin
@@ -59,7 +58,7 @@ pGrid (r:rs) = do
 
 ppGrid :: Grid -> IO ()
 ppGrid g = ppGrid2 g width
-  where width = 1 + (length $ show $ maximum $ map maximum g)
+  where width = 1 + length (show $ maximum $ map maximum g)
 
 ppGrid2 :: Grid -> Int -> IO ()
 ppGrid2 (r:[]) width = ppRow r width
@@ -68,6 +67,6 @@ ppGrid2 (r:rs) width = do
   ppGrid2 rs width
 
 ppRow r w = do
-  mapM (Text.Printf.printf ("%" ++ show w ++ "d")) r
+  mapM_ (Text.Printf.printf ("%" ++ show w ++ "d")) r
   putStrLn ""
   return ()
