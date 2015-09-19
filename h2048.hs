@@ -21,7 +21,7 @@ spawnInt = 2
 cleanGrid :: Grid
 cleanGrid = replicate size $ replicate size 0
 
-start :: StateT StdGen IO Grid
+start :: State StdGen Grid
 start = spawn cleanGrid >>= spawn
 
 getg :: (Int, Int) -> Grid -> Int
@@ -42,7 +42,7 @@ rand :: StdGen -> Int -> (Int, StdGen)
 rand r m = (n `mod` m, r')
   where (n, r') = next r
 
-nextInt :: StateT StdGen IO Int
+nextInt :: State StdGen Int
 nextInt = do
   g <- get
   let (n, g') = next g
@@ -50,35 +50,35 @@ nextInt = do
   return n
 
 -- spawn a new number at an "open" position
-spawn   :: Grid -> StateT StdGen IO Grid
+spawn   :: Grid -> State StdGen Grid
 spawn g = do
-  pos <- randPos1
+  pos <- randPos
   if spawnable pos g
     then return $ setg spawnInt pos g
     else spawn g
-  where randPos1 = do
+  where randPos = do
           x <- nextInt
           y <- nextInt
           return (x `mod` size, y `mod` size)
 
-spawnable :: (Int, Int) -> Grid -> Bool
+spawnable :: Pos -> Grid -> Bool
 spawnable pos g = getg pos g == 0
 
 main :: IO ()
 main = do
   r <- Rnd.getStdGen
-  (g, r') <- runStateT start r
-  forever $ evalStateT (game g) r'
+  let (g, r') = runState start r
+  forever $ game g r'
 
-game :: Grid -> StateT StdGen IO Grid
-game grid = do
-  liftIO $ putStrLn ""
-  liftIO $ mapM_ print grid
-  ch <- liftIO getCh
+game :: Grid -> StdGen-> IO Grid
+game grid gen = do
+  putStrLn ""
+  mapM_ print grid
+  ch <- getCh
   case charToDirection ch of
-    Just char -> do g' <- spawn $ move grid char
-                    game g'
-    Nothing   -> game grid
+    Just char -> let (g', gen') = runState (spawn $ move grid char) gen
+                 in game g' gen'
+    Nothing   -> game grid gen
 
 getCh :: IO Char
 getCh = do hSetEcho stdin False
