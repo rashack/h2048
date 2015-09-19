@@ -3,13 +3,13 @@ module Main where
 import Control.Monad.State
 import Grid
 import System.IO
-import System.Random as Rnd
+import System.Random
 import Text.Printf
 import qualified GridOps
 
 main :: IO ()
 main = do
-  r <- Rnd.getStdGen
+  r <- getStdGen
   let (g, r') = GridOps.startGrid r
   ppGrid g
   game g r'
