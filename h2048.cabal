@@ -19,7 +19,7 @@ executable h2048
   main-is:             h2048.hs
   -- other-modules:
   -- other-extensions:
-  build-depends:       base >=4.6 && <4.7,
+  build-depends:       base >=4.6 && < 5,
                        mtl,
                        random
 
