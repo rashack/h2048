@@ -3,7 +3,7 @@ module Main where
 import Control.Monad.State
 import Grid
 import System.IO
-import System.Random as Rnd
+import System.Random
 import Text.Printf
 import qualified GridOps as GridOps
 

@@ -1,8 +1,10 @@
 module GridOps where
 
 import Grid
-import System.Random as Rnd
 import Control.Monad.State
+import System.Random
+
+type Pos = (Int, Int)
 
 size = 4
 
@@ -15,10 +17,10 @@ cleanGrid = replicate size $ replicate size 0
 startGrid :: State StdGen Grid
 startGrid = spawn cleanGrid >>= spawn
 
-getg :: (Int, Int) -> Grid -> Int
+getg :: Pos -> Grid -> Int
 getg (x, y) g = (g !! y) !! x
 
-setg :: Int -> (Int, Int) -> Grid -> Grid
+setg :: Int -> Pos -> Grid -> Grid
 setg e (x, y) g =
   setl row' y g
   where row  = g !! y
@@ -46,7 +48,7 @@ spawn g = do
           then return (setg spawnInt pos g)
           else spawn g
 
-spawnable :: (Int, Int) -> Grid -> Bool
+spawnable :: Pos -> Grid -> Bool
 spawnable pos g = getg pos g == 0
 
 move :: Grid -> Direction -> Grid
