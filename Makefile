@@ -7,4 +7,3 @@ check:
 	hlint "--ignore=Eta reduce" $(SRC)
 
 .PHONY: tags check
-
