@@ -1,4 +1,4 @@
-SRC := $(shell find . -name \*.hs -not -path ./dist/\* -not -name Setup.hs | xargs)
+SRC := $(wildcard src/*.hs)
 
 tags:
 	hasktags -e $(SRC)
