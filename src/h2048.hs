@@ -48,6 +48,7 @@ charToDirection :: Char -> Maybe Direction
 charToDirection ch = lookup ch commands
 
 pGrid :: Grid -> IO ()
+pGrid [] = return ()
 pGrid (r:[]) = print r
 pGrid (r:rs) = do
   print r
@@ -58,11 +59,13 @@ ppGrid g = ppGrid2 g width
   where width = 1 + length (show $ maximum $ map maximum g)
 
 ppGrid2 :: Grid -> Int -> IO ()
+ppGrid2 [] _ = return ()
 ppGrid2 (r:[]) width = ppRow r width
 ppGrid2 (r:rs) width = do
   ppRow r width
   ppGrid2 rs width
 
+ppRow :: [Int] -> Int -> IO ()
 ppRow r w = do
   mapM_ (Text.Printf.printf ("%" ++ show w ++ "d")) r
   putStrLn ""

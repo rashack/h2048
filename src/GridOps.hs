@@ -6,9 +6,11 @@ import System.Random
 
 type Pos = (Int, Int)
 
+size :: Int
 size = 4
 
 -- This might be 2 or 4 in the future.
+spawnInt :: Int
 spawnInt = 2
 
 cleanGrid :: Grid
@@ -45,8 +47,8 @@ spawn :: Grid -> State StdGen Grid
 spawn g = do
   pos <- nextPos
   if spawnable pos g
-          then return (setg spawnInt pos g)
-          else spawn g
+  then return (setg spawnInt pos g)
+  else spawn g
 
 spawnable :: Pos -> Grid -> Bool
 spawnable pos g = getg pos g == 0
