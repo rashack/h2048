@@ -10,7 +10,7 @@ import qualified GridOps
 main :: IO ()
 main = do
   r <- getStdGen
-  let (g, r') = GridOps.startGrid r
+  let (g, r') = runState GridOps.startGrid r
   ppGrid g
   game g r'
   return ()
@@ -30,7 +30,7 @@ maybeMove g c rnd = if g == g'
                             ppGrid g''
                             return (g'', rnd')
   where g' = GridOps.move g c
-        (g'', rnd') = GridOps.spawn rnd g'
+        (g'', rnd') = runState (GridOps.spawn g') rnd
 
 getCh :: IO Char
 getCh = do hSetEcho stdin False

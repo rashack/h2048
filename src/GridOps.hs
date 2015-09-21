@@ -1,5 +1,6 @@
 module GridOps where
 
+import Control.Monad.State
 import Grid
 import System.Random
 
@@ -13,11 +14,8 @@ spawnInt = 2
 cleanGrid :: Grid
 cleanGrid = replicate size $ replicate size 0
 
-startGrid :: StdGen -> (Grid, StdGen)
-startGrid r = (g'', r'')
-  where
-    (g', r')   = spawn r cleanGrid
-    (g'', r'') = spawn r' g'
+startGrid :: State StdGen Grid
+startGrid = spawn cleanGrid >>= spawn
 
 getg :: Pos -> Grid -> Int
 getg (x, y) g = (g !! y) !! x
@@ -33,21 +31,22 @@ setl _ _ []    = []
 setl e 0 (_:t) = e:t
 setl e n (h:t) = h : setl e (n-1) t
 
-rand :: StdGen -> Int -> (Int, StdGen)
-rand r m = (n `mod` m, r')
-  where (n, r') = next r
+nextInt :: State StdGen Int
+nextInt = liftM next get >>= \(n, g) -> put g >> return n
 
-randPos :: StdGen -> (Pos, StdGen)
-randPos r = ((x, y), r'')
-  where (x, r')  = rand r  size
-        (y, r'') = rand r' size
+nextPos :: State StdGen (Int, Int)
+nextPos = do
+  x <- nextInt
+  y <- nextInt
+  return (x `mod` size, y `mod` size)
 
 -- spawn a new number at an "open" position
-spawn :: StdGen -> Grid -> (Grid, StdGen)
-spawn r g = if spawnable pos g
-            then (setg spawnInt pos g, r')
-            else spawn r' g
-  where (pos, r') = randPos r
+spawn :: Grid -> State StdGen Grid
+spawn g = do
+  pos <- nextPos
+  if spawnable pos g
+          then return (setg spawnInt pos g)
+          else spawn g
 
 spawnable :: Pos -> Grid -> Bool
 spawnable pos g = getg pos g == 0
