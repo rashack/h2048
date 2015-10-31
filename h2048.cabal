@@ -21,6 +21,7 @@ executable h2048
   -- other-modules:
   -- other-extensions:
   build-depends:       base >=4.6 && < 5,
+                       hscurses,
                        mtl,
                        random
   ghc-options:         -Wall -fno-warn-name-shadowing -fno-warn-unused-do-bind -O2
