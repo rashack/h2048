@@ -45,17 +45,18 @@ maybeMove g c rnd = if g == g'
 ppGrid :: Grid -> IO ()
 ppGrid g = do
   erase
-  mvPutGrid 0 0 g
+  mvWAddStr stdScr 0 0 (show (maximum $ map length g) ++ " " ++ show (length g))
+  mvPutGrid 4 4 g
   refresh
 
 mvPutRow :: Int -> Int -> Int -> [Int] -> IO ()
-mvPutRow y x w row = mvWAddStr stdScr y x $ concat $ map (xpnd w) row
+mvPutRow y x w row = mvWAddStr stdScr y x $ concatMap (xpnd w) row
 
 mvPutGrid :: Int -> Int -> [[Int]] -> IO ()
 mvPutGrid y x g = do
-  mapM (\(y', r) -> mvPutRow y' x w r) $ zip [y..] g
+  mapM_ (\(y', r) -> mvPutRow y' x w r) $ zip [y..] g
   return ()
-    where w = 1+ (length $ show (maximum $ map maximum g))
+    where w = 1 + length (show (maximum $ map maximum g))
 
 xpnd :: Int -> Int -> String
 xpnd w i = replicate (w - l) ' ' ++ s
