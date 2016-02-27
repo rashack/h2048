@@ -11,18 +11,20 @@ import System.Random
 import qualified Graphics.Vty as V
 import qualified GridOps
 
-ui :: (Grid, StdGen) -> [Widget]
-ui (g, _r) = [str $ grid2str g]
+drawUI :: (Grid, StdGen) -> [Widget]
+drawUI (g, _r) = [ui]
+  where ui = vBox $ map (str . row2str w) g
+        w = 1 + length (show $ maximum $ map maximum g)
 
 appEvent :: (Grid, StdGen) -> V.Event -> BT.EventM (BT.Next (Grid, StdGen))
-appEvent (g, r) e =
-  case e of
+appEvent (g, r) ev =
+  case ev of
     V.EvKey V.KEsc []   -> BM.halt (g, r)
     V.EvKey V.KRight [] -> BM.continue $ maybeMove g East r
     V.EvKey V.KLeft []  -> BM.continue $ maybeMove g West r
     V.EvKey V.KUp []    -> BM.continue $ maybeMove g North r
     V.EvKey V.KDown []  -> BM.continue $ maybeMove g South r
-    _ev                 -> BM.continue (g, r)
+    _e                  -> BM.continue (g, r)
 
 theMap :: A.AttrMap
 theMap = A.attrMap V.defAttr
@@ -32,7 +34,7 @@ theMap = A.attrMap V.defAttr
 
 app :: BM.App (Grid, StdGen) V.Event
 app =
-  BM.App { BM.appDraw = ui
+  BM.App { BM.appDraw = drawUI
          , BM.appChooseCursor = BM.showFirstCursor
          , BM.appHandleEvent = appEvent
          , BM.appStartEvent = return
@@ -53,13 +55,6 @@ maybeMove g c rnd = if g == g'
   where g' = GridOps.move g c
         (g'', rnd') = runState (GridOps.spawn g') rnd
 
-grid2str :: Grid -> String
-grid2str g = grid2str2 width g
-  where width = 1 + length (show $ maximum $ map maximum g)
-
-grid2str2 :: Int -> Grid -> String
-grid2str2 width grid = foldl (++) [] $ lineBreaks $ map (row2str width) grid
-
 row2str :: Int -> [Int] -> String
 row2str width row =
   foldl (++) [] $ map (padNum width) row
@@ -68,8 +63,3 @@ padNum :: Int -> Int -> String
 padNum width num = padding ++ numStr
   where padding = foldl (++) [] $ replicate (width - length numStr) " "
         numStr = show num
-
-lineBreaks :: [String] -> [String]
-lineBreaks []       = []
-lineBreaks (x:y:[]) = [x] ++ ["\n"] ++ [y]
-lineBreaks (x:xs)   = [x] ++ ["\n"] ++ lineBreaks xs
